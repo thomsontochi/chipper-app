@@ -8,7 +8,7 @@ This repository contains the front-end application of _Chipper_, a fictional mic
 
 Take some time to familiarize yourself with the codebase.
 
-1. Upload this code to a PRIVATE repository on GitHub. Invite the user [nicodevs](https://github.com/nicodevs/) to join the repository.
+1. Upload this code to a PRIVATE repository on GitHub. Invite the user [harlekoy](https://github.com/harlekoy/) to join the repository.
 
    ![Image](https://github.com/vueschool/chipper-app/assets/10015302/4f459c23-45fc-4bc6-becf-0b41d28d2b4b)
 
