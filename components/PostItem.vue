@@ -12,8 +12,11 @@ const user = useUser()
 const favorites = useFavorites()
 
 const isOwnPost = computed(() => user.data?.id === props.post.user.id)
-const isFollowing = computed(() => favorites.isFavorite(props.post.user.id))
-const isPending = computed(() => favorites.isPending(props.post.user.id))
+const isFollowing = computed(() => favorites.isAuthorFavorite(props.post.user.id))
+const followPending = computed(() => favorites.isAuthorPending(props.post.user.id))
+
+const isPostFavorited = computed(() => favorites.isPostFavorite(props.post.id))
+const postPending = computed(() => favorites.isPostPending(props.post.id))
 
 const followLabel = computed(() => {
   if (isOwnPost.value) return 'Your post'
@@ -26,12 +29,27 @@ async function toggleFollow () {
     return
   }
 
-  if (isOwnPost.value || isPending.value) return
+  if (isOwnPost.value || followPending.value) return
 
   if (isFollowing.value) {
     await favorites.unfollowUser(props.post.user.id)
   } else {
     await favorites.followUser(props.post.user.id)
+  }
+}
+
+async function togglePostFavorite () {
+  if (user.isGuest) {
+    await navigateTo('/login')
+    return
+  }
+
+  if (postPending.value) return
+
+  if (isPostFavorited.value) {
+    await favorites.unfavoritePost(props.post.id)
+  } else {
+    await favorites.favoritePost(props.post.id)
   }
 }
 </script>
@@ -50,9 +68,9 @@ async function toggleFollow () {
       <button
         v-if="!user.isGuest && !isOwnPost"
         class="rounded-full border border-emerald-200/60 bg-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/40 disabled:opacity-50"
-        :disabled="isPending"
+        :disabled="followPending"
         @click="toggleFollow">
-        {{ isPending ? 'Please wait…' : followLabel }}
+        {{ followPending ? 'Please wait…' : followLabel }}
       </button>
       <span
         v-else-if="isOwnPost"
@@ -83,9 +101,17 @@ async function toggleFollow () {
       {{ post.body }}
     </p>
 
-    <button class="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-400 via-pink-400 to-orange-400 px-6 py-4 font-semibold text-white shadow-lg shadow-rose-400/30 transition hover:translate-y-[1px]">
-      <HeartIcon class="h-5 w-5" />
-      <span>Add to my favorites</span>
+    <button
+      class="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-400 via-pink-400 to-orange-400 px-6 py-4 font-semibold text-white shadow-lg shadow-rose-400/30 transition hover:translate-y-[1px] disabled:opacity-60"
+      :class="isPostFavorited ? '!from-emerald-400 !via-sky-400 !to-indigo-400' : ''"
+      :disabled="postPending"
+      @click="togglePostFavorite">
+      <HeartIcon
+        class="h-5 w-5"
+        :class="isPostFavorited ? 'fill-white' : ''" />
+      <span>
+        {{ postPending ? 'Working…' : (isPostFavorited ? 'Remove from favorites' : 'Add to my favorites') }}
+      </span>
     </button>
   </article>
 </template>
