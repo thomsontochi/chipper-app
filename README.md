@@ -127,7 +127,7 @@ Posts that include an image should be display it below the body of the post and 
 
 > Please update the following line in this `README.md` file to include your estimate of the time required for completion.
 
-Estimated Time Required: [Your Estimate Here]
+Estimated Time Required: 60 minutes
 
 > After updating the estimate and right before you start coding, commit your changes using the following command:
 `git add README.md && git commit -m "Extra Task estimated" && git push`
