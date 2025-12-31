@@ -1,12 +1,39 @@
 <script setup>
 import { HeartIcon } from '@heroicons/vue/24/outline'
 
-defineProps({
+const props = defineProps({
   post: {
     type: Object,
     required: true
   }
 })
+
+const user = useUser()
+const favorites = useFavorites()
+
+const isOwnPost = computed(() => user.data?.id === props.post.user.id)
+const isFollowing = computed(() => favorites.isFavorite(props.post.user.id))
+const isPending = computed(() => favorites.isPending(props.post.user.id))
+
+const followLabel = computed(() => {
+  if (isOwnPost.value) return 'Your post'
+  return isFollowing.value ? 'Unfollow' : 'Follow'
+})
+
+async function toggleFollow () {
+  if (user.isGuest) {
+    await navigateTo('/login')
+    return
+  }
+
+  if (isOwnPost.value || isPending.value) return
+
+  if (isFollowing.value) {
+    await favorites.unfollowUser(props.post.user.id)
+  } else {
+    await favorites.followUser(props.post.user.id)
+  }
+}
 </script>
 
 <template>
@@ -20,9 +47,24 @@ defineProps({
           {{ post.title }}
         </h4>
       </div>
-      <button class="rounded-full border border-sky-200/60 bg-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/40">
-        Follow
+      <button
+        v-if="!user.isGuest && !isOwnPost"
+        class="rounded-full border border-emerald-200/60 bg-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/40 disabled:opacity-50"
+        :disabled="isPending"
+        @click="toggleFollow">
+        {{ isPending ? 'Please wait…' : followLabel }}
       </button>
+      <span
+        v-else-if="isOwnPost"
+        class="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white/80">
+        {{ followLabel }}
+      </span>
+      <NuxtLink
+        v-else
+        to="/login"
+        class="rounded-full border border-sky-200/60 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/30">
+        Login to follow
+      </NuxtLink>
     </div>
 
     <div class="mt-4 flex items-center gap-4 rounded-2xl bg-white/10 px-4 py-3 text-sm text-white/80">
