@@ -30,8 +30,16 @@ export const usePosts = defineStore('posts', () => {
     }
   }
 
-  async function createPost ({ title, body }) {
-    const response = await $api.post('/posts', { title, body })
+  async function createPost ({ title, body, image }) {
+    const payload = new FormData()
+    payload.append('title', title)
+    payload.append('body', body)
+
+    if (image) {
+      payload.append('image', image)
+    }
+
+    const response = await $api.post('/posts', payload)
     const post = extractData(response)
 
     if (post) {

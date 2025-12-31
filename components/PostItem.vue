@@ -8,6 +8,7 @@ const props = defineProps({
   }
 })
 
+const config = useRuntimeConfig()
 const user = useUser()
 const favorites = useFavorites()
 
@@ -17,6 +18,25 @@ const followPending = computed(() => favorites.isAuthorPending(props.post.user.i
 
 const isPostFavorited = computed(() => favorites.isPostFavorite(props.post.id))
 const postPending = computed(() => favorites.isPostPending(props.post.id))
+const resolvedImageUrl = computed(() => {
+  const rawUrl = props.post.image_url
+  if (!rawUrl) return null
+
+  try {
+    const parsedUrl = new URL(rawUrl)
+
+    if ((parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1') && !parsedUrl.port) {
+      const apiBase = new URL(config.public.API_URL)
+      parsedUrl.protocol = apiBase.protocol
+      parsedUrl.hostname = apiBase.hostname
+      parsedUrl.port = apiBase.port
+    }
+
+    return parsedUrl.toString()
+  } catch {
+    return rawUrl
+  }
+})
 
 const followLabel = computed(() => {
   if (isOwnPost.value) return 'Your post'
@@ -100,6 +120,15 @@ async function togglePostFavorite () {
     <p class="mt-4 text-base leading-relaxed text-white/85">
       {{ post.body }}
     </p>
+
+    <div
+      v-if="resolvedImageUrl"
+      class="mt-5 overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-xl shadow-indigo-900/30">
+      <img
+        :src="resolvedImageUrl"
+        :alt="post.title"
+        class="h-72 w-full object-cover" />
+    </div>
 
     <button
       class="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-400 via-pink-400 to-orange-400 px-6 py-4 font-semibold text-white shadow-lg shadow-rose-400/30 transition hover:translate-y-[1px] disabled:opacity-60"

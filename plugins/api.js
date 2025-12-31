@@ -8,15 +8,20 @@ export default defineNuxtPlugin(() => {
     const couponCookie = useCookie('coupon')
     const utmCookie = useCookie('utm')
 
+    const hasBody = ['POST', 'PATCH', 'PUT'].includes(method)
+    const body = hasBody ? params : undefined
+    const query = !hasBody ? params : undefined
+    const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
+
     return $fetch(url, {
       method,
-      body: ['POST', 'PATCH', 'PUT'].includes(method) ? params : null,
-      query: ['GET', 'DELETE'].includes(method) ? params : null,
+      body,
+      query,
       baseURL: config.public.API_URL,
       headers: pickBy({
         ...headers,
         Accept: 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': isFormData ? null : 'application/json',
         Authorization: tokenCookie?.value ? `Bearer ${tokenCookie.value}` : null,
         'X-Coupon': couponCookie?.value,
         'X-UTM': JSON.stringify(toRaw(utmCookie?.value))

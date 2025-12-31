@@ -10,6 +10,18 @@ export default function () {
     })
   }
 
+  function showToast ({ title, icon = 'info' }) {
+    return Swal.fire({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 4000,
+      timerProgressBar: true,
+      icon,
+      title
+    })
+  }
+
   function getCookieParams () {
     const config = useRuntimeConfig()
     const today = new Date()
@@ -28,6 +40,7 @@ export default function () {
 
   return {
     showErrorModal,
+    showToast,
     getCookieParams
   }
 }
