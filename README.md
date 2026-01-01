@@ -137,6 +137,22 @@ Estimated Time Required: 60 minutes
 > After implementing the changes, commit your work using the following commands:
 `git add -A && git commit -m "Add the ability to post images" && git push`
 
+# Image uploads – flow, validation, and testing
+
+To help reviewers understand the extra credit work, here’s a quick reference:
+
+1. **How to upload:** On the homepage, authenticated users can use the new “Attach an image (optional)” area inside `PostForm`. Click “Choose file,” pick a JPG/PNG/GIF/WEBP (≤5 MB), preview it, and post. The preview displays file name/type/size plus a loading shimmer while submitting.
+2. **Frontend validation:**  
+   - Title required  
+   - Body required  
+   - Image MIME: jpg, jpeg, png, gif, webp  
+   - Image size: ≤ 5 MB  
+   Errors surface inline beneath each field and via toast notifications, staying in sync with Laravel’s validation rules.
+3. **Testing signal:** Manual verification covered:
+   - Successful post with/without image (image appears in the feed with normalized URLs).  
+   - Validation failures for missing title/body, unsupported image type, and oversized image.  
+   - Backend validation errors (simulated via API) correctly bubble up to the UI.
+
 # Done!
 
 Thank you for completing this challenge. Kindly inform us when you have finished, and we will proceed to review your code. Make sure to add [harlekoy](https://github.com/harlekoy) to the list of collaborators for both your private repositories, including the Laravel API and the Nuxt app.

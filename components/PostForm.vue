@@ -20,6 +20,15 @@ const fieldErrors = ref(blankErrors())
 const SUPPORTED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024
 let imagePreviewUrl = null
+const selectedImageDetails = computed(() => {
+  if (!image.value) return null
+
+  return {
+    name: image.value.name || 'Unnamed image',
+    sizeLabel: formatBytes(image.value.size),
+    typeLabel: image.value.type?.split('/')?.pop()?.toUpperCase() ?? 'N/A'
+  }
+})
 
 function resetForm () {
   title.value = ''
@@ -107,6 +116,18 @@ function setFieldError (field, message) {
 
 function resetFieldErrors () {
   fieldErrors.value = blankErrors()
+}
+
+function formatBytes (bytes) {
+  if (!Number.isFinite(bytes)) return '0 B'
+  if (bytes === 0) return '0 B'
+
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const value = bytes / Math.pow(k, i)
+
+  return `${value % 1 === 0 ? value : value.toFixed(1)} ${sizes[i]}`
 }
 
 async function submit () {
@@ -231,6 +252,12 @@ onBeforeUnmount(() => {
             Choose file
           </button>
         </div>
+        <p
+          v-if="selectedImageDetails"
+          class="mt-3 text-xs text-slate-600">
+          Attached: <span class="font-semibold text-slate-800">{{ selectedImageDetails.name }}</span>
+          • {{ selectedImageDetails.typeLabel }} • {{ selectedImageDetails.sizeLabel }}
+        </p>
         <input
           ref="fileInput"
           type="file"
@@ -241,6 +268,9 @@ onBeforeUnmount(() => {
         <div
           v-if="imagePreview"
           class="relative mt-4 overflow-hidden rounded-2xl border border-white shadow-lg shadow-slate-400/20">
+          <div
+            v-if="submitting"
+            class="absolute inset-0 bg-gradient-to-r from-white/10 via-white/40 to-white/10 opacity-70 blur-sm animate-pulse" />
           <img
             :src="imagePreview"
             alt="Selected post image preview"
